@@ -10,7 +10,9 @@ const
     radius = 100,
     startAngle = -Math.PI/2,
     leftOffset = 100,
-    distanceBetween = 200,
+    distanceHorizontal = 200,
+    distanceVertical = 55,
+    vitamisInLine = 5,
     y = 120, // Vitamin horizontal center point
     fills = {
         W: 255,
@@ -34,9 +36,9 @@ const getPath = (lineAngle, sides, isAnimated = true) => {
     }
 }
 
-const setup = (ctx, x) => {
+const setup = (ctx, x, line) => {
     ctx.save()
-    ctx.translate(x, y)
+    ctx.translate(x, y + distanceVertical * line )
     ctx.rotate(startAngle)
 }
 
@@ -47,9 +49,10 @@ export function drawVitamins (ctx, vitamins) {
     const 
         lineAngle = (Math.PI * 2)/vitamin.sides,
         {vertices, waypoints} = getPath(lineAngle, vitamin.sides),
-        x = distanceBetween * (vitamin.sides - 3) + leftOffset
+        line = vitamisInLine * parseInt((vitamin.sides - 3) / vitamisInLine), 
+        x = distanceHorizontal * (vitamin.sides - 3 - line) + leftOffset
 
-    setup(ctx, x)
+    setup(ctx, x, line)
 
     drawLines(
         ctx, 
@@ -58,6 +61,7 @@ export function drawVitamins (ctx, vitamins) {
             fillVitamin({
                 ctx, 
                 x, 
+                line,
                 vertices, 
                 newBg: fills[vitamin.bg],
                 callback: () => drawVitamins(ctx, vitamins)})
@@ -69,9 +73,10 @@ export function updateVitamin ({ctx, sides, oldBg, newBg}) {
     const 
         lineAngle = (Math.PI * 2)/sides,
         {vertices} = getPath(lineAngle, sides),
-        x = distanceBetween * (sides - 3) + leftOffset
+        line = vitamisInLine *parseInt((sides - 3) / vitamisInLine),
+        x = distanceHorizontal * (sides - 3 - line) + leftOffset
 
-    fillVitamin({ctx, x, vertices, oldBg: fills[oldBg], newBg: fills[newBg]}) 
+    fillVitamin({ctx, x, line, vertices, oldBg: fills[oldBg], newBg: fills[newBg]}) 
 }
 
 // Draw lines with animation
@@ -100,11 +105,11 @@ function drawLines (ctx, points, callback, i = 1) {
         - Will be greate to separate filling from redrawing
           but just make filling in another function not working  
 */
-function  fillVitamin ({ctx, x, vertices, newBg, callback = () => {}, oldBg = 255}) {
+function  fillVitamin ({ctx, x, line, vertices, newBg, callback = () => {}, oldBg = 255}) {
     const deltaBg = Math.abs(oldBg - newBg)
     if (deltaBg < 3) return callback()
 
-    setup(ctx, x)
+    setup(ctx, x, line)
     ctx.beginPath()
     ctx.moveTo(vertices[0].x, vertices[0].y)
 
@@ -123,7 +128,7 @@ function  fillVitamin ({ctx, x, vertices, newBg, callback = () => {}, oldBg = 25
     ctx.fill()
     ctx.stroke()
 
-    requestAnimationFrame(() => fillVitamin({ctx, x, vertices, newBg, callback, oldBg: newColor}))
+    requestAnimationFrame(() => fillVitamin({ctx, line, x, vertices, newBg, callback, oldBg: newColor}))
 }
 
 // Splite line of plygon to small points for animation
