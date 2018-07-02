@@ -38,7 +38,7 @@ export const initMakeAllWite = (vitaminsLine, record) => {
     if (next) {
         const buf = ['W', 'B', 'G'].filter(bg => bg !== maxBg && bg !== next.bg)[0]
         makeAllWite(record, vitaminsLine, maxBg, next.bg, buf, max, next.sides + 1)
-        initMakeAllWite(vitaminsLine)
+        initMakeAllWite(vitaminsLine, record)
     } else {
         const buf = ['W', 'B', 'G'].filter(bg => bg !== maxBg && bg !== 'W')[0]
         makeAllWite(record, vitaminsLine, maxBg, 'W', buf, max, 3)
